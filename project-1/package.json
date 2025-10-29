@@ -1,14 +1,14 @@
 {
-  "name": "project-1",
-  "version": "1.0.0",
-  "main": "index.js",
   "scripts": {
     "start": "node app.js",
-    "dev": "nodemon node app.js"
+    "dev": "nodemon app.js"
   },
-  "keywords": [],
   "type": "commonjs",
   "dependencies": {
+    "body-parser": "^2.2.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0"
   },
   "devDependencies": {
