@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const cors = require('cors')
 const cookieParser = require('cookie-parser');
 const { userRoute } = require('./routes/users.router');
+const { connectDB } = require('./config/db.config');
 dotenv.config();
 // create app instance 
 const app = express();
@@ -22,6 +23,14 @@ app.use('/', userRoute)
 // listen a server on port
 const port = process.env.PORT;
 
-app.listen(port, () => {
-    console.log(`[Server] Server running on ${8000} port...`);
-})
+
+
+const startServer = async () => {
+    await connectDB()
+    app.listen(port, () => {
+        console.log(`[Server] Server running on ${8000} port...`);
+    })
+}
+
+startServer()
+
