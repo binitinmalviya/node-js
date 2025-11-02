@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 app.use('/api/users', userRoutes)
 
 const startServer = async () => {
-    await connectDB()
+    await connectDB();
     app.listen(port, () => {
         console.log(`[Server] Server is Starting`);
         console.log(`Server running http://localhost:${port}`);

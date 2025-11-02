@@ -1,9 +1,11 @@
 const express = require('express')
-const { register, login, updateUserName } = require('../controller/user.controller')
+const { register, login, updateUserName } = require('../controller/user.controller');
+const { verifyToken } = require('../middleware/token');
 const userRoutes = express.Router()
 
 userRoutes.post('/register', register);
 userRoutes.post('/login', login);
-userRoutes.put('/update-username', updateUserName);
+// middleware -- > verifyToken  -- user defined middleware
+userRoutes.put('/update-username', verifyToken, updateUserName);
 
 module.exports = { userRoutes }

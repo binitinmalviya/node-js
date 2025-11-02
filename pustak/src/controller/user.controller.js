@@ -1,5 +1,5 @@
+const { generateToken } = require("../middleware/token");
 const { UserModel } = require("../model/user.model");
-const bcrypt = require('bcrypt');
 const { encryptPassword, comparePassword } = require("../utils/helper");
 const register = async (req, res) => {
     try {
@@ -31,12 +31,12 @@ const register = async (req, res) => {
 
         console.log("User saved with hash password", newUser);
 
+        const token = generateToken(email);
         const user = await UserModel.create(newUser)
         //  delete the password from user object
         const userWithOutPasswordUser = user.toObject();
         delete userWithOutPasswordUser.password;
-
-        return res.status(201).json({ success: true, statusCode: 201, message: "user successfully registered ..", data: userWithOutPasswordUser })
+        return res.status(201).json({ success: true, statusCode: 201, message: "user successfully registered ..", data: userWithOutPasswordUser, accessToken: token })
 
     } catch (error) {
 
@@ -60,8 +60,10 @@ const login = async (req, res) => {
             const isPasswordTrue = comparePassword(password, user.password);
             const deletePassword = user.toObject()
             delete deletePassword.password
+            const token = generateToken(email);
+
             if (isPasswordTrue)
-                return res.status(200).json({ success: true, statusCode: 200, message: "Login In Successfully", data: deletePassword });
+                return res.status(200).json({ success: true, statusCode: 200, message: "Login In Successfully", data: deletePassword, accessToken: token });
             else
                 return res.status(400).json({ success: false, statusCode: 400, errorMsg: "Bad Request", message: "Invalid password" });
 
