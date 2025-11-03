@@ -1,6 +1,9 @@
+const { default: mongoose } = require("mongoose");
 const { generateToken } = require("../middleware/token");
+const OtpModel = require("../model/otp.model");
 const { UserModel } = require("../model/user.model");
-const { encryptPassword, comparePassword } = require("../utils/helper");
+const { encryptPassword, comparePassword, generateOtp } = require("../utils/helper");
+const { wellComeMessage } = require("../utils/nodemailer");
 const register = async (req, res) => {
     try {
         // object de- structure
@@ -31,14 +34,22 @@ const register = async (req, res) => {
 
         console.log("User saved with hash password", newUser);
 
-        const token = generateToken(email);
         const user = await UserModel.create(newUser)
         //  delete the password from user object
         const userWithOutPasswordUser = user.toObject();
         delete userWithOutPasswordUser.password;
-        return res.status(201).json({ success: true, statusCode: 201, message: "user successfully registered ..", data: userWithOutPasswordUser, accessToken: token })
+        const otp = generateOtp();
+        await wellComeMessage(email, username, otp)
+        console.log("///// 000000000000000")
+
+        const isOtp = await OtpModel.create({ otp: otp.toString(), userId: mongoose.Schema.Types.ObjectId(user._id) });
+        console.log("///// .............", isOtp)
+        if (isOtp) return res.status(201).json({ success: true, statusCode: 201, message: `user successfully registered & otp sent to your email ${email} !`, })
+
+        return res.status(201).json({ success: false, statusCode: 500, message: `Registration failed .. sent to failed otp`, })
 
     } catch (error) {
+        console.log("Error", error);
 
     }
 }

@@ -16,6 +16,13 @@ const comparePassword = (password, hashPassword) => {
     return bcrypt.compareSync(password, hashPassword)
 }
 
-module.exports = { encryptPassword, comparePassword }
+
+// generate otp 
+
+const generateOtp = () => {
+    return Math.floor(1000 + Math.random(1, 9) * 1000);
+}
+
+module.exports = { encryptPassword, comparePassword, generateOtp }
 
 
