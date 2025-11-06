@@ -1,58 +1,86 @@
-const { default: mongoose } = require("mongoose");
 const { generateToken } = require("../middleware/token");
 const OtpModel = require("../model/otp.model");
 const { UserModel } = require("../model/user.model");
 const { encryptPassword, comparePassword, generateOtp } = require("../utils/helper");
 const { wellComeMessage } = require("../utils/nodemailer");
+
 const register = async (req, res) => {
     try {
-        // object de- structure
         const { username, email, password } = req.body;
-        /*
-        1. check user all ready exist
-        2. save the user
-        */
-
-        console.log(username);
-
 
         if (!username || !email || !password) {
-            return res.status(400).json({ success: false, statusCode: 400, errorMsg: "Bad Request", message: "Invalid input filed's" })
+            return res.status(400).json({
+                success: false,
+                statusCode: 400,
+                errorMsg: "Bad Request",
+                message: "Please provide username, email and password.",
+            });
         }
 
-        const isExist = await UserModel.findOne({ email: email });
-
+        const isExist = await UserModel.findOne({ email });
         if (isExist) {
-            return res.status(400).json({ success: false, statusCode: 409, errorMsg: "Conflict", message: "Email is all-ready exist" })
+            return res.status(409).json({
+                success: false,
+                statusCode: 409,
+                errorMsg: "Conflict",
+                message: "Email already exists.",
+            });
         }
 
-        console.log("....");
+        console.log("Encrypting password...");
+        const hashedPassword = encryptPassword(password);
 
-        console.log("calling encryption password function encrypt the password...");
+        const newUser = {
+            username,
+            email,
+            password: hashedPassword,
+            status: true,
+        };
 
-        const newUser = { username, email, password: encryptPassword(password), status: true }
+        const user = await UserModel.create(newUser);
 
-        console.log("User saved with hash password", newUser);
+        const userWithoutPassword = user.toObject();
+        delete userWithoutPassword.password;
 
-        const user = await UserModel.create(newUser)
-        //  delete the password from user object
-        const userWithOutPasswordUser = user.toObject();
-        delete userWithOutPasswordUser.password;
         const otp = generateOtp();
-        await wellComeMessage(email, username, otp)
-        console.log("///// 000000000000000")
+        await wellComeMessage(email, username, otp);
 
-        const isOtp = await OtpModel.create({ otp: otp.toString(), userId: mongoose.Schema.Types.ObjectId(user._id) });
-        console.log("///// .............", isOtp)
-        if (isOtp) return res.status(201).json({ success: true, statusCode: 201, message: `user successfully registered & otp sent to your email ${email} !`, })
+        console.log("Generated OTP:", otp);
 
-        return res.status(201).json({ success: false, statusCode: 500, message: `Registration failed .. sent to failed otp`, })
+        const isOtp = await OtpModel.create({
+            otp: otp.toString(),
+            userId: user._id,
+        });
+
+        console.log("OTP saved:", isOtp);
+
+        if (isOtp) {
+            return res.status(201).json({
+                success: true,
+                statusCode: 201,
+                message: `User successfully registered & OTP sent to your email: ${email}!`,
+                data: userWithoutPassword,
+            });
+        }
+
+        return res.status(500).json({
+            success: false,
+            statusCode: 500,
+            message: `User registration successful but OTP save failed.`,
+        });
 
     } catch (error) {
-        console.log("Error", error);
-
+        return res.status(500).json({
+            success: false,
+            statusCode: 500,
+            message: "Internal Server Error",
+            error: error.message,
+        });
     }
-}
+};
+
+module.exports = { register };
+
 
 const login = async (req, res) => {
     try {
@@ -73,11 +101,14 @@ const login = async (req, res) => {
             delete deletePassword.password
             const token = generateToken(email);
 
-            if (isPasswordTrue)
-                return res.status(200).json({ success: true, statusCode: 200, message: "Login In Successfully", data: deletePassword, accessToken: token });
-            else
-                return res.status(400).json({ success: false, statusCode: 400, errorMsg: "Bad Request", message: "Invalid password" });
+            if (user.isVerify) {
+                if (isPasswordTrue)
+                    return res.status(200).json({ success: true, statusCode: 200, message: "Login In Successfully", data: deletePassword, accessToken: token });
+                else
+                    return res.status(400).json({ success: false, statusCode: 400, errorMsg: "Bad Request", message: "Invalid password" });
+            }
 
+            return res.status(409).json({ success: false, statusCode: 409, message: "Please verify your email.." })
         }
 
 
@@ -109,4 +140,60 @@ const updateUserName = async (req, res) => {
     }
 }
 
-module.exports = { register, login, updateUserName }
+
+const verifyOtp = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+
+        if (!email || !otp) {
+            return res.status(400).json({
+                success: false,
+                statusCode: 400,
+                errorMsg: "Bad Request",
+                message: "Please provide email and otp",
+            });
+        }
+
+        if (otp.toString().length !== 4) {
+            return res.status(400).json({
+                success: false,
+                statusCode: 400,
+                errorMsg: "Bad Request",
+                message: "otp must be 4 digit",
+            });
+        }
+        // with help of user email we can find out the user 
+        const user = await UserModel.findOne({ email: email });
+        const dbOtp = await OtpModel.findOne({ userId: user._id });
+        if (otp.toString() === dbOtp.otp) {
+
+            const check = await UserModel.findOneAndUpdate({ email: user.email }, { $set: { isVerify: true } }, { new: true });
+            console.log("check", check)
+            return res.status(201).json({ success: true, statusCode: 201, message: "OTP verify successfully." })
+        }
+
+        return res.status(400).json({ success: false, statusCode: 400, message: "Invalid OTP." })
+
+
+    } catch (error) {
+        console.error("[ERROR]", error);
+    }
+}
+
+
+const resentOtp = async (req, res) => {
+    try {
+        const email = req.params;
+        console.log("email ...", email)
+        /* 
+        1. first get the email get user via email .
+        2. generate otp save into db with user id into otp model.
+        3. sent the otp to email         
+        */
+    } catch (error) {
+        console.error("[ERROR]", error);
+    }
+
+}
+
+module.exports = { register, login, updateUserName, verifyOtp, resentOtp }

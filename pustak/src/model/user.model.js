@@ -24,6 +24,10 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    isVerify: {
+        type: Boolean,
+        default: false
+    },
     ipAddress: String
 }, { timestamps: true })
 
