@@ -79,9 +79,6 @@ const register = async (req, res) => {
     }
 };
 
-module.exports = { register };
-
-
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -140,7 +137,6 @@ const updateUserName = async (req, res) => {
     }
 }
 
-
 const verifyOtp = async (req, res) => {
     try {
         const { email, otp } = req.body;
@@ -180,20 +176,42 @@ const verifyOtp = async (req, res) => {
     }
 }
 
-
 const resentOtp = async (req, res) => {
     try {
-        const email = req.params;
-        console.log("email ...", email)
-        /* 
-        1. first get the email get user via email .
-        2. generate otp save into db with user id into otp model.
-        3. sent the otp to email         
-        */
+        // 1. first get the email get user via email .
+        const { email } = req.params;
+
+        // 2. generate otp save into db with user id into otp model.
+        const user = await UserModel.findOne({ email });
+        console.log(user)
+        const reOtp = generateOtp();
+        await wellComeMessage(email, user.username, reOtp);
+        const isReOtp = await OtpModel.create({
+            otp: reOtp.toString(),
+            userId: user._id,
+        });
+
+        if (isReOtp) {
+            return res
+                .status(201)
+                .json({
+                    success: true,
+                    statusCode: 201,
+                    message: `resend otp successfully ${email}!`,
+                });
+        } else {
+            return res
+                .status(201)
+                .json({
+                    success: false,
+                    statusCode: 500,
+                    message: `resend otp not successfully .. sent to failed otp`,
+                });
+        }
+
     } catch (error) {
         console.error("[ERROR]", error);
     }
-
-}
+};
 
 module.exports = { register, login, updateUserName, verifyOtp, resentOtp }

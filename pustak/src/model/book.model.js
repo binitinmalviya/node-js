@@ -20,7 +20,6 @@ const BookSchema = new mongoose.Schema(
         },
         imageUrl: {
             type: String,
-            required: true,
         },
         description: {
             type: String,
@@ -32,7 +31,6 @@ const BookSchema = new mongoose.Schema(
         },
         quantity: {
             type: Number,
-            required: true,
         },
         isDelete: {
             type: Boolean,
