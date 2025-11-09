@@ -1,4 +1,5 @@
 const bookValidations = (req, res, next) => {
+
     const {
         title,
         publisher,
@@ -7,7 +8,6 @@ const bookValidations = (req, res, next) => {
         description,
         price } = req.body;
 
-
     if (!title ||
         !publisher ||
         !publishingDate ||
@@ -15,6 +15,10 @@ const bookValidations = (req, res, next) => {
         !description ||
         !price)
         return res.status(400).json({ success: false, statusCode: 400, message: "Bad Request", errMessage: "Invalid input" })
+
+    if (!req.file.filename) {
+
+    }
 
 
     return next()

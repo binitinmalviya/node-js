@@ -20,6 +20,7 @@ const BookSchema = new mongoose.Schema(
         },
         imageUrl: {
             type: String,
+            required: true,
         },
         description: {
             type: String,
