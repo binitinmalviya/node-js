@@ -37,6 +37,10 @@ const BookSchema = new mongoose.Schema(
             type: Boolean,
             default: false,
         },
+        stock: {
+            type: Number,
+            default: 5
+        },
         isSoldOut: {
             type: Boolean,
             default: false,
@@ -46,9 +50,25 @@ const BookSchema = new mongoose.Schema(
             default: false,
         }
     },
-    { timestamps: true }
+    {
+        timestamps: true,
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true }
+    }
 );
+
+
+BookSchema.virtual("outOfStockBadge").get(() => {
+    if (this.stock === 0)
+        return true
+
+    return false
+})
 
 const BookModel = mongoose.model("book", BookSchema);
 
 module.exports = { BookModel };
+
+//  "outOFtoCookBadge" : true  "stock"
+
+

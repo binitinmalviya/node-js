@@ -25,9 +25,18 @@ const insertBook = async (req, res) => {
 
 const updateBookById = async (req, res) => {
     try {
+        const data = req.body;
+        const { id } = req.params;
+        const imageUrl = 'http://localhost:8000/uploads/' + req?.file?.filename
+        const updateObject = { ...data, imageUrl };
+        const book = await BookModel.findByIdAndUpdate(id, { $set: updateObject }, { new: true });
+
+        if (book)
+            return res.status(201).json({ success: true, statusCode: 201, message: "Book Updated Successfully", data: book });
 
     } catch (error) {
-
+        console.log('error ...', error)
+        return res.status(500).json({ success: false, statusCode: 500, message: "Internal Server Error" });
     }
 }
 
@@ -36,6 +45,7 @@ const getBooks = async (req, res) => {
         const books = await BookModel.find({});
         return res.status(200).json({ success: true, statusCode: 200, message: "Books fetched successfully.", data: books });
     } catch (error) {
+        console.log(error)
         return res.status(500).json({ success: false, statusCode: 500, message: "Internal Server Error" });
     }
 }
@@ -70,5 +80,17 @@ const deleteBookById = async (req, res) => {
     }
 }
 
+const getTrendingBooks = async (req, res) => {
+    try {
+        const books = await BookModel.find({ isTrending: true });
 
-module.exports = { insertBook, deleteBookById, getBookById, getBooks, updateBookById };
+    } catch (error) {
+
+    }
+}
+
+
+// coupon --- >
+//  10 total ---- virtual -- total - 20100/-
+
+module.exports = { insertBook, deleteBookById, getBookById, getBooks, updateBookById, getTrendingBooks };
