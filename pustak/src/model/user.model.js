@@ -28,7 +28,8 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
-    ipAddress: String
+    ipAddress: String,
+    // embedding
 }, { timestamps: true })
 
 const UserModel = mongoose.model('user', UserSchema)

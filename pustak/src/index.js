@@ -1,12 +1,12 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const { connectDB } = require('./config/db.config');
+const connectDB = require('./config/db.config');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const path = require('path');
-const { userRoutes } = require('./routes/user.routes');
-const { bookRoutes } = require('./routes/book.routes');
-const bodyParser = require('body-parser');
+const userRoutes = require('./routes/user.routes');
+const bookRoutes = require('./routes/book.routes');
+const cartRoutes = require('./routes/cart.routes')
 dotenv.config()
 const app = express();
 const port = process.env.PORT || 8000;
@@ -24,10 +24,12 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.get('/', (req, res) => {
     return res.send('Server is running')
 })
+
 // routes
 
 app.use('/api/users', userRoutes);
 app.use('/api/books', bookRoutes);
+app.use('/api/cart', cartRoutes);
 
 const startServer = async () => {
     await connectDB();

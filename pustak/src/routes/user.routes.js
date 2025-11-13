@@ -11,4 +11,4 @@ userRoutes.post('/verify-otp', verifyOtp)
 userRoutes.get("/resent-otp/:email", resentOtp)
 
 // create profile -- userpro -- 
-module.exports = { userRoutes }
+module.exports = userRoutes;

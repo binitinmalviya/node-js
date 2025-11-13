@@ -11,4 +11,4 @@ bookRoutes.get('/', getBooks);
 bookRoutes.delete('/:id', deleteBookById);
 bookRoutes.put("/:id", upload.single('bookImage'), updateBookById)
 
-module.exports = { bookRoutes }
+module.exports = bookRoutes; 
