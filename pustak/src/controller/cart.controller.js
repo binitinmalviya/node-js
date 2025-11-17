@@ -11,40 +11,65 @@ const { CartModel } = require("../model/cart.model");
 exports.addToCart = async (req, res) => {
     try {
         const { bookId, qty, userId } = req.body;
+        // 1 validate the book 
         const book = await BookModel.findById(bookId);
         if (!book) {
-            return res.status(404).json({ message: "Book not found please send valid book id." })
+            return res.status(404).json({ message: "Book not found. Please send valid book id." });
         }
+
+        // cal the book total
         const bookTotal = qty * book.price;
-        const cart = await CartModel.findOne({ userId });
+
+        let cart = await CartModel.findOne({ userId });
+        //  new cart is created 
         if (!cart) {
             const newCart = await CartModel.create({
                 userId,
-                item: [{
-                    bookId, qty, total: bookTotal
-                }],
+                item: [{ bookId, qty, total: bookTotal }],
                 total: bookTotal
-            })
-            return res.status(201).json({ status: true, statusCode: 201, message: "Cart is created", cart: newCart })
-        } else {
-            const exitingItemIndex = cart.item.findIndex((i) => { i.bookId.toString() === bookId });
-            console.log("exitingItemIndex", exitingItemIndex)
-            if (exitingItemIndex > -1) {
-                cart.item[exitingItemIndex].qyt += qyt;
-                cart.item[exitingItemIndex].total += bookTotal;
-            } else
-                cart.item.push({ bookId, qty, total: bookTotal })
+            });
 
-            cart.total = cart.item.reduce((sum, i) => sum + i.total, 0);
-            await cart.save();
-            return res.status(201).json({ status: true, statusCode: 201, message: "Product added into the cart.", cart: cart })
+            return res.status(201).json({
+                status: true,
+                statusCode: 201,
+                message: "Cart created",
+                cart: newCart
+            });
         }
 
+        const existingItemIndex = cart.item.findIndex(
+            (i) => i.bookId.toString() === bookId
+        );
+
+        if (existingItemIndex > -1) {
+            return res.status(200).json({
+                status: false,
+                statusCode: 200,
+                message: "This book is already in cart."
+            });
+        }
+
+        cart.item.push({ bookId, qty, total: bookTotal });
+
+        cart.total = cart.item.reduce((sum, i) => sum + i.total, 0);
+
+        await cart.save();
+
+        return res.status(201).json({
+            status: true,
+            statusCode: 201,
+            message: "Product added into the cart.",
+            cart
+        });
+
     } catch (error) {
-        console.error("addToCart", error)
-        return res.status(500).json({ message: "Internal server error", errMsg: error.message })
+        console.error("addToCart", error);
+        return res.status(500).json({
+            message: "Internal server error",
+            errMsg: error.message
+        });
     }
-}
+};
 
 // delete from cart
 
