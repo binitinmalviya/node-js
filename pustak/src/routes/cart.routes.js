@@ -4,10 +4,11 @@ const cartController = require('../controller/cart.controller');
 
 const cartRoutes = express.Router();
 
-cartRoutes.post('/', cartController.addToCart)
-cartRoutes.get('/', verifyToken, cartController.addToCart)
-cartRoutes.delete('/', verifyToken, cartController.deleteProductFromCart)
-cartRoutes.post('/increase-qyt', verifyToken, cartController.increaseQYT)
-cartRoutes.post('/decrease-qyt', verifyToken, cartController.decreaseQYT)
+cartRoutes.post('/', verifyToken, cartController.addToCart);
+cartRoutes.get('/', verifyToken, cartController.getCart);
+cartRoutes.delete('/', verifyToken, cartController.deleteProductFromCart);
+cartRoutes.post('/increase-qyt', verifyToken, cartController.increaseQYT);
+cartRoutes.post('/decrease-qyt', verifyToken, cartController.decreaseQYT);
+cartRoutes.get('/user/:userId', verifyToken, cartController.getUserWithCart);
 
 module.exports = cartRoutes;
