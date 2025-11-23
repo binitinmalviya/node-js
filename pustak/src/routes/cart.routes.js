@@ -9,6 +9,6 @@ cartRoutes.get('/', verifyToken, cartController.getCart);
 cartRoutes.delete('/', verifyToken, cartController.deleteProductFromCart);
 cartRoutes.post('/increase-qyt', verifyToken, cartController.increaseQYT);
 cartRoutes.post('/decrease-qyt', verifyToken, cartController.decreaseQYT);
-cartRoutes.get('/user/:userId', verifyToken, cartController.getUserWithCart);
+cartRoutes.get('/user/:userId', cartController.getUserWithCart);
 
 module.exports = cartRoutes;

@@ -2,8 +2,8 @@
   "name": "project-2",
   "version": "1.0.0",
   "scripts": {
-    "start": "node src/app.js",
-    "dev": "nodemon src/node app.js"
+    "start": "node init && node src/app.js",
+    "dev": "node init && nodemon src/node app.js"
   },
   "keywords": [],
   "author": "",
