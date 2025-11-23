@@ -11,12 +11,15 @@ const OrderSchema = new mongoose.Schema({
     },
     total: {
         type: Number,
-        required: true
+        required: true,
+
     },
-    isPayment:{
-        type:Boolean
+    isPayment: {
+        type: Boolean
     }
 
 }, { timestamps: true });
+
+
 
 exports.OrderModel = mongoose.model('order', OrderSchema);
