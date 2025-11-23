@@ -1,5 +1,5 @@
 const express = require('express');
-const { insertBook, getBookById, getBooks, deleteBookById, updateBookById, getTrendingBooks } = require('../controller/book.controller');
+const { insertBook, getBookById, getBooks, deleteBookById, updateBookById, getTrendingBooks, searchBook } = require('../controller/book.controller');
 const { upload } = require('../utils/multer');
 
 const bookRoutes = express.Router();
@@ -10,5 +10,9 @@ bookRoutes.get('/:id', getBookById);
 bookRoutes.get('/', getBooks);
 bookRoutes.delete('/:id', deleteBookById);
 bookRoutes.put('/:id', upload.single('bookImage'), updateBookById);
+
+// search book 
+
+bookRoutes.get("/book/search", searchBook)
 
 module.exports = bookRoutes;

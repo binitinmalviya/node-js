@@ -5,6 +5,7 @@ const BookSchema = new mongoose.Schema(
         title: {
             type: String,
             required: true,
+            index: true
         },
         publisher: {
             type: String,
@@ -17,6 +18,7 @@ const BookSchema = new mongoose.Schema(
         author: {
             type: String,
             required: true,
+            index: true
         },
         imageUrl: {
             type: String,
@@ -25,10 +27,12 @@ const BookSchema = new mongoose.Schema(
         description: {
             type: String,
             required: true,
+            index: true
         },
         price: {
             type: String,
             required: true,
+            index: true
         },
         quantity: {
             type: Number,
@@ -65,10 +69,10 @@ BookSchema.virtual("outOfStockBadge").get(() => {
     return false
 })
 
+
+
 const BookModel = mongoose.model("book", BookSchema);
 
 module.exports = { BookModel };
-
-//  "outOFtoCookBadge" : true  "stock"
 
 

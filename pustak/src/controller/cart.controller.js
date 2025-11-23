@@ -1,5 +1,7 @@
+const { default: mongoose } = require("mongoose");
 const { BookModel } = require("../model/book.model");
 const { CartModel } = require("../model/cart.model");
+const { UserModel } = require("./../model/user.model")
 
 exports.addToCart = async (req, res) => {
     try {
@@ -134,7 +136,6 @@ exports.getUserWithCart = async (req, res) => {
         const user = await UserModel.findById(userId).select("-password");
         const cart = await CartModel.findOne({ userId })
             .populate("item.bookId", "title price author");
-
         return res.status(200).json({ user, cart });
     } catch (error) {
         return res.status(500).json({ message: "Internal server error", errMsg: error.message });
